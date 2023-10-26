@@ -21,41 +21,41 @@ class TwistSubPub(Node):
 		e_a = e_a*3.14159/180
 		e_a = numpy.arctan2(numpy.sin(e_a), numpy.cos(e_a))
 
-		setlin = 0.5
+		setlin = 0.0
 		setang = 0.0
-		bufferlin = 0.1
-		bufferang = 0.2		
+		#bufferlin = 0.1
+		#bufferang = 0.2		
 
-		pid_l = PID(-0.45,0.000,0.05,setpoint=setlin)
+		pid_l = PID(-1,0.000,0.0,setpoint=setlin)
 		v_l = pid_l(e_l)
-		pid_a = PID(-0.6,0.0,0.05,setpoint=setang)
+		pid_a = PID(-0.6,0.0,0.0,setpoint=setang)
 		v_a = pid_a(e_a)
 		
 		if v_l > 0.22:
-			v_l = 0.22
+			v_l = 0.2
 		elif v_l < -0.22:
-			v_l = -0.22
+			v_l = -0.2
 		if v_a > 1.42:
 			v_a = 1.42
 		elif v_a < -1.42:
 			v_a = -1.42
 		
 		twist = Twist()
-		if abs(e_a) > 0.2:
+		if abs(e_a) > 0.1:
 			self.get_logger().info('Adjusting Angular twist')
 			#self.get_logger().info('e_l: "%s"'% e_l)
 			#self.get_logger().info('v_l: "%s"'% v_l)
 			twist.angular.z = v_a
 			twist.linear.x = 0.0
 			
-		if abs(e_a) < 0.2:
+		elif abs(e_a) < 0.11:
 			self.get_logger().info('Adjusting Linear twist')
 			#self.get_logger().info('e_l: "%s"'% e_l)
 			#self.get_logger().info('v_l: "%s"'% v_l)
 			twist.angular.z = 0.0
 			twist.linear.x = v_l
 
-		if abs(e_l)<0.02:
+		if abs(e_l)<0.05:
 			self.get_logger().info('Reached point')
 			#self.get_logger().info('e_a: "%s"'% e_a)
 			#self.get_logger().info('e_l: "%s"'% e_l)
