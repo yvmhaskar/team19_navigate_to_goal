@@ -93,7 +93,7 @@ class Goal_Pub_Sub(Node):
 				msg = Float32MultiArray()
 				msg.data = [e_l, e_a]
 				self.heading.publish(msg)
-				time.sleep(10)
+				#time.sleep(10)
 		elif state == 2: # State 2: (1.5, 0) to (2.25, 0.7)
 			goal = [2.25, 0.7]
 			e_l = distance_to_goal = math.sqrt((goal[0] - curPos[0]) ** 2 + (goal[1] - curPos[1]) ** 2)
@@ -113,7 +113,7 @@ class Goal_Pub_Sub(Node):
 				msg = Float32MultiArray()
 				msg.data = [e_l, e_a]
 				self.heading.publish(msg)
-				time.sleep(10)
+				#time.sleep(10)
 		elif state == 3: # State 3: (2.25, 0.7) to (1.5, 1.4)
 			goal = [1.5, 1.4]
 			e_l = distance_to_goal = math.sqrt((goal[0] - curPos[0]) ** 2 + (goal[1] - curPos[1]) ** 2)
@@ -133,7 +133,7 @@ class Goal_Pub_Sub(Node):
 				msg = Float32MultiArray()
 				msg.data = [e_l, e_a]
 				self.heading.publish(msg)
-				time.sleep(10)
+				#time.sleep(10)
 		elif state == 4: # State 4: (1.5, 1.4) to (0, 1.4)
 			goal = [0, 1.4]
 			e_l = distance_to_goal = math.sqrt((goal[0] - curPos[0]) ** 2 + (goal[1] - curPos[1]) ** 2)
@@ -153,7 +153,7 @@ class Goal_Pub_Sub(Node):
 				msg = Float32MultiArray()
 				msg.data = [e_l, e_a]
 				self.heading.publish(msg)
-				time.sleep(10)
+				#time.sleep(10)
 	
 def main(args=None):
 	rclpy.init(args=args)
