@@ -54,14 +54,14 @@ class Goal_Pub_Sub(Node):
 		theta_goal = theta_goal_data
 		ang_err_range = 0.2
 		e_l = 0.0 #goal[0] - curPos[0] #+ ((goal[1] - curPos[1]) ** 2)) # ignore e_l to ensure only rotate first
-#		e_a = math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
-		e_a =  theta_goal- theta_odom
+		e_a = math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
+#		e_a =  theta_goal- theta_odom
 		#self.get_logger().info('Lin Errornow{}'.format(e_l))
 		self.get_logger().info('Ang Errornow{}'.format(e_a))
 		self.get_logger().info('x_goal{}'.format(goal[0]))
 		if e_a > ang_err_range:
 			msg = Float32MultiArray()
-			msg.data = [0,e_a]
+			msg.data = [0.0,e_a]
 			# Publish the x-axis position
 			self.heading.publish(msg)
 			self.get_logger().info('Rotating')
@@ -153,7 +153,7 @@ class Goal_Pub_Sub(Node):
 					goal = [1.5, 1.4]
 					theta_goal = 3.14159265/2.0 # 90 degrees
 					theta_odom = theta_odom
-					self.rotate_direction(self, goal, curPos, theta_odom, theta_goal)
+					self.rotate_direction(goal, curPos, theta_odom, theta_goal)
 
 			elif state == 3: # State 2: (1.5, 0) to (2.25, 0.7)
 				goal = [2.25, 0.7]

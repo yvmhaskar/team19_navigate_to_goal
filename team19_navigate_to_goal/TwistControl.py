@@ -18,7 +18,6 @@ class TwistSubPub(Node):
 		mover_data = msg.data
 		e_l = float(mover_data[0])
 		e_a = float(mover_data[1])
-		e_a = e_a*3.14159/180
 		e_a = numpy.arctan2(numpy.sin(e_a), numpy.cos(e_a))
 
 		setlin = 0.0
@@ -55,7 +54,7 @@ class TwistSubPub(Node):
 			twist.angular.z = 0.0
 			twist.linear.x = v_l
 
-		if abs(e_l)<0.05:
+		elif abs(e_l)<0.05 and abs(e_a)<0.11:
 			self.get_logger().info('Reached point')
 			#self.get_logger().info('e_a: "%s"'% e_a)
 			#self.get_logger().info('e_l: "%s"'% e_l)
