@@ -19,7 +19,8 @@ setup(
     license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
-        'console_scripts': [
+        'console_scripts': [ 'goToGoal=team19_navigate_to_goal.goToGoal:main',
+                            'TwistControl=team19_navigate_to_goal.TwistControl:main',
         ],
     },
 )
