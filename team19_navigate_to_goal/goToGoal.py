@@ -72,11 +72,14 @@ class Goal_Pub_Sub(Node):
 		curPos = [xodom, yodom]
 		theta_odom = self.globalAng
 		lin_err_range = 0.05
+		self.get_logger().info('State{}'.format(state))
 	
 		if state==1: # State 1: (0,0) to (1.5, 0)
 			goal = [1.5, 0]
 			e_l = distance_to_goal = math.sqrt((goal[0] - curPos[0]) ** 2 + (goal[1] - curPos[1]) ** 2)
 			e_a = math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
+			self.get_logger().info('Lin Error{}'.format(e_l))
+
 			if e_l > lin_err_range:
 				msg = Float32MultiArray()
 				msg.data = [e_l,e_a]
@@ -95,6 +98,8 @@ class Goal_Pub_Sub(Node):
 			goal = [2.25, 0.7]
 			e_l = distance_to_goal = math.sqrt((goal[0] - curPos[0]) ** 2 + (goal[1] - curPos[1]) ** 2)
 			e_a = math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
+			self.get_logger().info('Lin Error{}'.format(e_l))
+
 			if e_l > lin_err_range:
 				msg = Float32MultiArray()
 				msg.data = [e_l,e_a]
@@ -113,6 +118,8 @@ class Goal_Pub_Sub(Node):
 			goal = [1.5, 1.4]
 			e_l = distance_to_goal = math.sqrt((goal[0] - curPos[0]) ** 2 + (goal[1] - curPos[1]) ** 2)
 			e_a = math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
+			self.get_logger().info('Lin Error{}'.format(e_l))
+
 			if e_l > lin_err_range:
 				msg = Float32MultiArray()
 				msg.data = [e_l,e_a]
@@ -131,6 +138,8 @@ class Goal_Pub_Sub(Node):
 			goal = [0, 1.4]
 			e_l = distance_to_goal = math.sqrt((goal[0] - curPos[0]) ** 2 + (goal[1] - curPos[1]) ** 2)
 			e_a = math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
+			self.get_logger().info('Lin Error{}'.format(e_l))
+
 			if e_l > lin_err_range:
 				msg = Float32MultiArray()
 				msg.data = [e_l,e_a]
