@@ -47,6 +47,37 @@ class Goal_Pub_Sub(Node):
 	def odom_callback(self, data):
 		self.goToGoal(data)
 
+	def rotate_direction(self, goal_data, curPos_data, theta_odom_data, theta_goal_data):			
+		goal = goal_data
+		curPos = curPos_data
+		theta_odom = theta_odom_data
+		theta_goal = theta_goal_data
+		ang_err_range = 0.2
+		e_l = 0.0 #goal[0] - curPos[0] #+ ((goal[1] - curPos[1]) ** 2)) # ignore e_l to ensure only rotate first
+#		e_a = math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
+		e_a =  theta_goal- theta_odom
+		#self.get_logger().info('Lin Errornow{}'.format(e_l))
+		self.get_logger().info('Ang Errornow{}'.format(e_a))
+		self.get_logger().info('x_goal{}'.format(goal[0]))
+		if e_a > ang_err_range:
+			msg = Float32MultiArray()
+			msg.data = [0,e_a]
+			# Publish the x-axis position
+			self.heading.publish(msg)
+			self.get_logger().info('Rotating')
+		elif e_a <= ang_err_range:
+			angReached = 1 # means true
+			e_l = 0.0
+			e_a = 0.0
+			# publish e_l and e_a self.cmd_vel.publish(twist)
+			msg = Float32MultiArray()
+			msg.data = [e_l, e_a]
+			self.heading.publish(msg)
+			# don't need to wait
+			#cur_time = timer()
+			#waiter = 1
+			#wait_time = 5
+
 	def goToGoal(self,Odom):
 		position = Odom.pose.pose.position
 		global waiter
@@ -122,29 +153,8 @@ class Goal_Pub_Sub(Node):
 					goal = [1.5, 1.4]
 					theta_goal = 3.14159265/2.0 # 90 degrees
 					theta_odom = theta_odom
-					e_l = goal[0] - curPos[0] #+ ((goal[1] - curPos[1]) ** 2))
-					e_a = math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
-					self.get_logger().info('Lin Errornow{}'.format(e_l))
-					self.get_logger().info('Ang Errornow{}'.format(e_a))
-					self.get_logger().info('x_goal{}'.format(goal[0]))
+					self.rotate_direction(self, goal, curPos, theta_odom, theta_goal)
 
-					if e_l > lin_err_range:
-						msg = Float32MultiArray()
-						msg.data = [0,e_a]
-						# Publish the x-axis position
-						self.heading.publish(msg)
-						self.get_logger().info('STATE 1')
-					elif e_l <= lin_err_range:
-						state = 3
-						e_l = 0.0
-						e_a = 0.0
-						# publish e_l and e_a self.cmd_vel.publish(twist)
-						msg = Float32MultiArray()
-						msg.data = [e_l, e_a]
-						self.heading.publish(msg)
-						cur_time = timer()
-						waiter = 1
-						wait_time = 5
 			elif state == 3: # State 2: (1.5, 0) to (2.25, 0.7)
 				goal = [2.25, 0.7]
 				e_l = distance_to_goal = math.sqrt((goal[0] - curPos[0]) ** 2 + (goal[1] - curPos[1]) ** 2)
