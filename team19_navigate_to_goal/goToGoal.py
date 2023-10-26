@@ -40,7 +40,10 @@ class Goal_Pub_Sub(Node):
 
 	def odom_callback(self, data):
 		self.update_Odometry(data)
-
+	def wait_state(self, data):
+		desTime = data+10
+		if time()>desTime:
+			state = 2
 	def update_Odometry(self,Odom):
 		position = Odom.pose.pose.position
 		global state
@@ -86,13 +89,15 @@ class Goal_Pub_Sub(Node):
 				# Publish the x-axis position
 				self.heading.publish(msg)
 			elif e_l < lin_err_range:
-				state = 2
+				#state = 2
 				e_l = 0
 				e_a = 0
 				# publish e_l and e_a self.cmd_vel.publish(twist)
 				msg = Float32MultiArray()
 				msg.data = [e_l, e_a]
 				self.heading.publish(msg)
+				curTime = time()
+				self.wait_state(curTime)
 				#time.sleep(10)
 		elif state == 2: # State 2: (1.5, 0) to (2.25, 0.7)
 			goal = [2.25, 0.7]
