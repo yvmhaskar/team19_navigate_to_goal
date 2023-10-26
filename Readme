@@ -4,7 +4,7 @@ scp -r burger@192.168.1.27:/home/burger/deadpool_ws/src/team19_navigate_to_goal 
 # Get code from github to turtlebot
 1) Connect the turtlebot to eduroam
 2) Make sure github is completely updated
-3) delete the team19_navigate_to_goal from src
+3) delete the team19_navigate_to_goal from src (go to src)
   sudo rm -r team19_navigate_to_goal
 4) Clone github
-  git clone 
+  git clone https://github.com/yvmhaskar/team19_navigate_to_goal.git
