@@ -35,27 +35,25 @@ class TwistSubPub(Node):
 		elif v_l < -0.22:
 			v_l = -0.2
 		if v_a > 1.42:
-			v_a = 1.42
+			v_a = 1.4
 		elif v_a < -1.42:
-			v_a = -1.42
+			v_a = -1.4
 		
 		twist = Twist()
-		if abs(e_a) > 0.1:
-			self.get_logger().info('Adjusting Angular twist')
+		if abs(e_a) > 0.08:
+			self.get_logger().info('Turning')
 			#self.get_logger().info('e_l: "%s"'% e_l)
 			#self.get_logger().info('v_l: "%s"'% v_l)
 			twist.angular.z = v_a
 			twist.linear.x = 0.0
-			
-		elif abs(e_a) < 0.11:
-			self.get_logger().info('Adjusting Linear twist')
+		elif abs(e_a) < 0.08:
+			self.get_logger().info('Moving')
 			#self.get_logger().info('e_l: "%s"'% e_l)
 			#self.get_logger().info('v_l: "%s"'% v_l)
 			twist.angular.z = 0.0
 			twist.linear.x = v_l
-
-		elif abs(e_l)<0.05 and abs(e_a)<0.11:
-			self.get_logger().info('Reached point')
+		elif abs(e_l)<0.04 and abs(e_a)<0.08:
+			self.get_logger().info('Close enough')
 			#self.get_logger().info('e_a: "%s"'% e_a)
 			#self.get_logger().info('e_l: "%s"'% e_l)
 			twist.angular.z = 0.0
