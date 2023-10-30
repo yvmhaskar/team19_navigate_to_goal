@@ -28,6 +28,11 @@ angReached = 0
 global closest_obj
 closest_obj = 0
 global Obj_det_x
+Obj_det_x = 1.0
+global turn_dir
+turn_dir = 1
+global turning_dir
+
 
 class Goal_Pub_Sub(Node):
 	def __init__(self):
@@ -50,7 +55,7 @@ class Goal_Pub_Sub(Node):
 
 		#Subscribe to getObjectRange data
 		self.obj_dist_sub = self.create_subscription(
-			Float32,
+			Float32MultiArray,
 			'/obj_dist',
 			self.obj_dist_callback,
 			1)
@@ -62,13 +67,17 @@ class Goal_Pub_Sub(Node):
 
 	def obj_dist_callback(self, msg):
 		global closest_obj
-		closest_obj = float(msg.data)
+		global turn_dir
+		msg_data = msg.data
+		closest_obj = float(msg_data[0])
+		turn_dir = float(msg_data[1])
+
 
 	def rotate_direction(self, goal, curPos, theta_odom, theta_goal):			
 		global angReached
 		ang_err_range = 0.1
 		a_offset = 0.1
-		e_l = 0.0 # ignore e_l to ensure only rotate first
+		# ignore e_l to ensure only rotate first
 		e_a = math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom + a_offset
 #		e_a =  theta_goal- theta_odom
 		e_a = np.arctan2(np.sin(e_a), np.cos(e_a))
@@ -96,6 +105,8 @@ class Goal_Pub_Sub(Node):
 		global angReached
 		global Obj_det_x
 		global closest_obj
+		global turn_dir
+		global turning_dir
 
 		if waiter == 1:
 			now_time = timer()
@@ -136,7 +147,7 @@ class Goal_Pub_Sub(Node):
 			err_offset = 1.8/1.5
 
 			if state==1: # State 1: (0,0) to (1.5, 0)
-				goal = [1.75, 0.0]
+				goal = [1.8, 0.0]
 				theta_odom = theta_odom
 				e_l = goal[0] - curPos[0] # Only X displacement
 				e_a = 0.0 #math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
@@ -148,7 +159,7 @@ class Goal_Pub_Sub(Node):
 					e_a = 0.0
 					cur_time = timer()
 					waiter = 1
-					wait_time = 5
+					wait_time = 10
 
 			elif state==2: # State 2: (1.5,0) to (1.7, 0)
 				goal = [2.3, 0.0]
@@ -162,7 +173,7 @@ class Goal_Pub_Sub(Node):
 					e_a = 0.0
 
 			elif state==3: # State 3: rotate 90 degrees CCW
-				goal = [2.3, 1.8]
+				goal = [2.3, 1.7]
 				theta_goal = 3.14/2.0 # 90 degrees
 				theta_odom = theta_odom
 				e_l = 0.0
@@ -175,7 +186,7 @@ class Goal_Pub_Sub(Node):
 					angReached=0
 			
 			elif state==4: # State 4: (1.7,0) to (1.7, 1.4)
-				goal = [2.3, 1.8]
+				goal = [2.2, 1.7]
 				e_l = goal[1] - curPos[1] # Only Y displacement
 				e_a = 0.0 #math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
 				if e_l > lin_err_range:
@@ -186,7 +197,7 @@ class Goal_Pub_Sub(Node):
 					e_a = 0.0
 			
 			elif state==5: # State 5: rotate 90 degrees CCW
-				goal = [1.5, 1.8]
+				goal = [1.7, 1.7]
 				theta_goal = 3.14159265 # 90 degrees
 				theta_odom = theta_odom
 				e_l = 0.0
@@ -199,7 +210,7 @@ class Goal_Pub_Sub(Node):
 					angReached=0
 			
 			elif state==6: # State 6: (1.7,1.4) to (1.5, 1.4)
-				goal = [1.5, 1.8]
+				goal = [1.7, 1.7]
 				e_l = curPos[0] - goal[0]
 				e_a = 0.0 #math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
 				if e_l > lin_err_range:
@@ -210,26 +221,29 @@ class Goal_Pub_Sub(Node):
 					e_a = 0.0
 					cur_time = timer()
 					waiter = 1
-					wait_time = 5
+					wait_time = 10
 			
 			elif state==7: # State 7: (1.5,1.4) to (1.3, 1.4)
 				goal = [0.0, 1.8]
 				e_l = curPos[0] - goal[0]
 				e_a = 0.0 #math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
-				if e_l > lin_err_range:
-					self.get_logger().info('STATE 7')
-				elif closest_obj<=0.3:
+				if closest_obj<=0.3:
 					state=8
 					e_l = 0.0
 					e_a = 0.0
 					Obj_det_x = curPos[0]
+					turning_dir = turn_dir
+					self.get_logger().info('Turning_dir: {}'.format(turning_dir))
+				elif e_l > lin_err_range:
+					self.get_logger().info('STATE 7')
 				elif e_l <= lin_err_range:
 					state = 14
 					e_l = 0.0
 					e_a = 0.0
 			
 			elif state==8: # State 8: rotate 90 degrees CW
-				goal = [Obj_det_x, 2.3]
+
+				goal = [Obj_det_x-0.1, 1.8+turning_dir*0.5]
 				theta_goal = 3.18/2 # 90 degrees
 				theta_odom = theta_odom
 				e_l = 0.0
@@ -242,8 +256,8 @@ class Goal_Pub_Sub(Node):
 					angReached=0
 			
 			elif state==9: # State 9: (1.3,1.4) to (1.3, 1.8)
-				goal = [1.5, 2.0]
-				e_l = goal[1] - curPos[1]
+				goal = [Obj_det_x, 1.8+turning_dir*0.5]
+				e_l = abs(goal[1] - curPos[1])
 				e_a = 0.0 #math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
 				if e_l > lin_err_range:
 					self.get_logger().info('STATE 9')
@@ -253,7 +267,7 @@ class Goal_Pub_Sub(Node):
 					e_a = 0.0
 
 			elif state==10: # State 10: rotate 90 degrees CCW
-				goal = [0.0, 2.0]
+				goal = [0.0, 1.8+turning_dir*0.5]
 				theta_goal = 3.14159265 # 180 degrees
 				theta_odom = theta_odom
 				e_l = 0.0
@@ -266,7 +280,7 @@ class Goal_Pub_Sub(Node):
 					angReached=0
 			
 			elif state==11: # State 11: (1.3,1.8) to (0, 1.8)
-				goal = [0.0, 2.0]
+				goal = [0.0, 1.8+turning_dir*0.5]
 				e_l = curPos[0] - goal[0]
 				e_a = 0.0 #math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
 				if e_l > lin_err_range:
@@ -277,7 +291,7 @@ class Goal_Pub_Sub(Node):
 					e_a = 0.0
 			
 			elif state==12: # State 12: rotate 90 degrees CCW
-				goal = [0.0, 1.4]
+				goal = [0.0, 1.7]
 				theta_goal = -3.14159265/2 # 180 degrees
 				theta_odom = theta_odom
 				e_l = 0.0
@@ -290,8 +304,8 @@ class Goal_Pub_Sub(Node):
 					angReached=0
 
 			elif state==13: # State 13: (0.0, 1.8) to (0, 1.4)
-				goal = [0.0, 1.4]
-				e_l = curPos[1] - goal[1]
+				goal = [0.0, 1.7]
+				e_l = abs(curPos[1] - goal[1])
 				e_a = 0.0 #math.atan2(goal[1] - curPos[1], goal[0] - curPos[0]) - theta_odom
 				if e_l > lin_err_range:
 					self.get_logger().info('STATE 13')
@@ -301,10 +315,10 @@ class Goal_Pub_Sub(Node):
 					e_a = 0.0
 					cur_time = timer()
 					waiter = 1
-					wait_time = 5
+					wait_time = 10
 
 			elif state==14: # State 14: Reached point
-				goal = [0.0, 1.4]
+				goal = [0.0, 1.8]
 				e_l = 0.0
 				e_a = 0.0
 				self.get_logger().info('STATE 14')
